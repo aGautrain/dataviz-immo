@@ -19,6 +19,7 @@
     <nav class="tabs" role="tablist">
       <button role="tab" data-tab="carte" aria-selected="true">Carte</button>
       <button role="tab" data-tab="prediction" aria-selected="false">Prédiction</button>
+      <button role="tab" data-tab="marche" aria-selected="false">Prix et taux</button>
       <button role="tab" data-tab="sources" aria-selected="false">Sources et questions fréquentes</button>
     </nav>
 
@@ -176,6 +177,52 @@
             </ol>
             <p class="muted">« Aujourd'hui » désigne le dernier mois publié dans DVF (mise à jour semestrielle, avec quelques mois de décalage). L'estimation ne connaît ni l'état du bien, ni l'étage, ni les travaux : c'est un ordre de grandeur, pas une expertise.</p>
           </aside>
+        </div>
+      </section>
+
+      <section class="marche" data-panel="marche" hidden>
+        <div class="mk-layout">
+          <h2>Prix de l'immobilier et taux de crédit</h2>
+          <p class="pred-intro">Les prix au m² ont peu bougé depuis fin 2021, mais les taux de crédit ont fortement augmenté. Cet onglet calcule ce que cela change pour un acheteur qui emprunte : mensualité, intérêts versés au prêteur et coût total.</p>
+
+          <form class="mk-controls" onsubmit="return false">
+            <label>Territoire <select id="mk-territory"></select></label>
+            <label>Type de bien
+              <select id="mk-type">
+                <option value="tous">Appartements et maisons</option>
+                <option value="appartement">Appartements</option>
+                <option value="maison">Maisons</option>
+              </select>
+            </label>
+            <label>Durée du prêt
+              <select id="mk-years"><option value="15">15 ans</option><option value="20" selected>20 ans</option><option value="25">25 ans</option></select>
+            </label>
+            <label>Surface (m²) <input id="mk-surface" type="number" min="9" value="60" /></label>
+            <label>Apport (%) <input id="mk-down" type="number" min="0" max="90" value="10" /></label>
+          </form>
+          <p id="mk-status" class="muted">Chargement des prix DVF…</p>
+          <p id="mk-hypothesis" class="muted"></p>
+
+          <div class="mk-top">
+            <table id="mk-table" class="mk-table"></table>
+            <div id="mk-reading" class="mk-reading"></div>
+          </div>
+
+          <div class="mk-chart-block">
+            <h3>Prix médian au m² et taux moyen du crédit</h3>
+            <div class="mk-chart"><canvas id="mk-chart-price-rate"></canvas></div>
+          </div>
+          <div class="mk-chart-block">
+            <h3>Coût total d'achat du même bien, selon le mois d'achat</h3>
+            <p class="muted">Apport + capital emprunté (payés au vendeur) + intérêts sur toute la durée du prêt (payés au prêteur).</p>
+            <div class="mk-chart"><canvas id="mk-chart-cost"></canvas></div>
+          </div>
+          <div class="mk-chart-block">
+            <h3>Évolutions comparées (base 100)</h3>
+            <div class="mk-chart"><canvas id="mk-chart-index"></canvas></div>
+          </div>
+
+          <p class="muted mk-sources">Taux : Observatoire Crédit Logement/CSA, taux moyens mensuels hors assurance par durée (fichier <code>src/data/taux_credit_immobilier.csv</code> ; octobre-novembre 2021 et janvier 2026 manquants). Prix : médiane mensuelle DVF des ventes d'un seul bien, lissée sur 3 mois. Calculs hors assurance emprunteur, frais de notaire et de garantie. Le dernier mois commun aux deux séries borne la comparaison (DVF est publié avec plusieurs mois de retard).</p>
         </div>
       </section>
 

@@ -3,6 +3,7 @@ import { createMap } from "./map.js";
 import { createSidebar } from "./sidebar.js";
 import { createSearch } from "./search.js";
 import { createPrediction } from "./prediction.js";
+import { createMarche } from "./marche.js";
 import { FILTERS, state, setState, subscribe } from "./state.js";
 import previewOrtho from "./img/preview-ortho.png";
 import previewVector from "./img/preview-vector.png";
@@ -25,6 +26,7 @@ function showTab(tab) {
   document.querySelectorAll("[data-tab]").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === tab));
   document.querySelectorAll("[data-panel]").forEach((p) => (p.hidden = p.dataset.panel !== tab));
   if (tab === "carte") mapApi.map.resize();
+  if (tab === "marche") marche.show();
   syncUrl();
 }
 document.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
@@ -72,6 +74,8 @@ createSidebar($("#sidebar"), {
     showTab("prediction");
   },
 });
+
+const marche = createMarche($("[data-panel=marche]"));
 
 const prediction = createPrediction($("[data-panel=prediction]"), {
   onShowOnMap: (parcelle, coords) => {
@@ -136,6 +140,7 @@ subscribe(() => {
 renderFilterLabel();
 
 if (params.get("onglet") === "sources") showTab("sources");
+if (params.get("onglet") === "marche") showTab("marche");
 if (params.get("onglet") === "prediction") {
   if (params.get("ref")) prediction.open(params.get("ref"), params.get("mutation"));
   showTab("prediction");

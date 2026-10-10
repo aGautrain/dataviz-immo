@@ -265,3 +265,28 @@ main > section { flex: 1; min-height: 0; }
   .pred-method { position: static; }
   .pred-results { overflow-x: auto; }
 }
+
+/* ------------------------------------------------------------ prix et taux */
+.marche { overflow-y: auto; }
+.mk-layout { padding: 24px; max-width: 1200px; }
+.mk-layout h2 { margin: 0 0 6px; font-size: 22px; }
+.mk-controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin: 12px 0; }
+.mk-controls label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+.mk-controls input, .mk-controls select { font: inherit; padding: 7px 8px; border: 1px solid #ccc; border-radius: 4px; min-width: 100px; }
+.mk-top { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; margin: 8px 0 24px; align-items: start; }
+.mk-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.mk-table th, .mk-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); text-align: right; }
+.mk-table tbody th { text-align: left; font-weight: 400; }
+.mk-table td.up { color: #ce0500; font-weight: 600; }
+.mk-table td.down { color: #18753c; font-weight: 600; }
+.mk-reading { background: var(--accent-light); padding: 4px 16px; font-size: 14px; }
+.mk-chart-block { margin-bottom: 28px; }
+.mk-chart-block h3 { font-size: 16px; margin: 0 0 4px; }
+.mk-chart-block .muted { margin: 0 0 6px; font-size: 13px; }
+.mk-chart { position: relative; height: 320px; }
+.mk-sources { font-size: 12px; }
+@media (max-width: 900px) {
+  .mk-layout { padding: 16px; }
+  .mk-top { grid-template-columns: 1fr; }
+  .mk-chart { height: 260px; }
+}

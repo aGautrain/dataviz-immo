@@ -97,6 +97,14 @@ if (point) {
   }
 }
 
+// 5 ter. Onglet Prix et taux.
+await page.goto(`${base}?onglet=marche`, { waitUntil: "load" });
+await page.waitForFunction(() => document.querySelector("#mk-table tbody tr"), null, { timeout: 30000 }).catch(() => {});
+const mk = (await text("#mk-table"))?.replace(/\s+/g, " ");
+check("Prix et taux : tableau", /Mensualité/.test(mk ?? ""), mk?.slice(0, 300));
+check("Prix et taux : lecture", ((await text("#mk-reading")) ?? "").length > 50, (await text("#mk-reading"))?.replace(/\s+/g, " ").slice(0, 300));
+await page.screenshot({ path: "smoke-marche.png" });
+
 // 6. Recherche d'adresse.
 await open("filtre=tous");
 await page.fill("#search input", "20 avenue de Ségur Paris");
