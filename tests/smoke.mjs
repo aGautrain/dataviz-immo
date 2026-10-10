@@ -97,12 +97,6 @@ if (point) {
   }
 }
 
-// 5 quater. Revente d'un même lot de copropriété (Rennes, 15 rue du Sapeur Michel Jouan : lot 139 vendu en 2021 et 2025).
-await open("filtre=tous&lat=48.10695&lng=-1.6915&zoom=18&parcelle=35238000DK0198");
-await page.waitForFunction(() => document.querySelector("#mutations-list .mutation"), null, { timeout: 30000 }).catch(() => {});
-const sameLot = (await page.$$eval("#mutations-list .same-lot", (els) => els.map((e) => e.textContent.trim()))).join(" | ");
-check("Parcelle : revente du même lot", /Lot 139/.test(sameLot), sameLot.slice(0, 300));
-
 // 5 ter. Onglet Prix et taux.
 await page.goto(`${base}?onglet=marche`, { waitUntil: "load" });
 await page.waitForFunction(() => document.querySelector("#mk-table tbody tr"), null, { timeout: 30000 }).catch(() => {});

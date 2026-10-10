@@ -118,10 +118,6 @@ export function createSidebar(root, { getCenter, getZoom, onLinkedParcels, onPre
   }
 
   // ---------------------------------------------------------- parcelle
-  const MAIN_TYPES = /^(Maison|Appartement|Local)/;
-  const rowLots = (r) => [1, 2, 3, 4, 5].map((i) => r[`lot${i}_numero`]).filter(Boolean).map(String);
-  const sameSet = (a, b) => a.size === b.size && [...a].every((x) => b.has(x));
-
   function groupMutations(rows, parcelle) {
     const byId = new Map();
     rows.filter((r) => r.id_parcelle === parcelle).forEach((r) => {
@@ -133,18 +129,12 @@ export function createSidebar(root, { getCenter, getZoom, onLinkedParcels, onPre
           date: r.date_mutation,
           price: r.valeur_fonciere,
           assets: [],
-          lots: new Set(),
-          mainLots: new Set(),
         });
       }
       const m = byId.get(r.id_mutation);
-      const lots = rowLots(r);
-      lots.forEach((l) => m.lots.add(l));
       if (r.type_local) {
         const rooms = r.nombre_pieces_principales ? ` / ${r.nombre_pieces_principales}p` : "";
-        const main = MAIN_TYPES.test(r.type_local);
-        if (main) lots.forEach((l) => m.mainLots.add(l));
-        m.assets.push({ type: r.type_local + rooms, surface: r.surface_reelle_bati, lots: main ? lots : [] });
+        m.assets.push({ type: r.type_local + rooms, surface: r.surface_reelle_bati });
       }
       if (r.nature_culture) m.assets.push({ type: r.nature_culture, surface: r.surface_terrain });
     });
@@ -164,37 +154,7 @@ export function createSidebar(root, { getCenter, getZoom, onLinkedParcels, onPre
       m.linked = [...(linked[m.id] ?? [])];
       return m;
     });
-    mutations.sort((a, b) => (a.date < b.date ? 1 : -1));
-    // Ventes successives d'un même lot de copropriété (numéro de lot identique sur la parcelle).
-    mutations.forEach((m) => {
-      m.sameLot = mutations
-        .filter((o) => o !== m && [...m.mainLots].some((l) => o.mainLots.has(l)))
-        .map((o) => ({
-          id: o.id,
-          date: o.date,
-          price: o.price,
-          lots: [...m.mainLots].filter((l) => o.mainLots.has(l)),
-          // Comparaison des prix seulement si les deux ventes portent exactement sur les mêmes lots.
-          comparable: sameSet(m.lots, o.lots) && m.price > 0 && o.price > 0,
-          later: o.date > m.date,
-        }));
-    });
-    return mutations;
-  }
-
-  function sameLotNote(m) {
-    return m.sameLot.map((o) => {
-      const lots = `${o.lots.length > 1 ? "Lots" : "Lot"} ${o.lots.join(", ")}`;
-      const when = new Date(o.date).toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" });
-      const what = o.later ? `revendu le ${when}` : `déjà vendu le ${when}`;
-      let price = o.price ? ` pour ${num(o.price)} €` : "";
-      if (o.comparable) {
-        const [from, to] = o.later ? [m.price, o.price] : [o.price, m.price];
-        const pct = ((to / from - 1) * 100).toLocaleString("fr-FR", { maximumFractionDigits: 1, signDisplay: "always" });
-        price += ` (${pct} % entre les deux ventes)`;
-      }
-      return `<p class="same-lot">${icons.id} ${esc(lots)} ${what}${price}.${o.comparable ? "" : " La composition des deux ventes diffère, les prix ne sont pas directement comparables."}</p>`;
-    }).join("");
+    return mutations.sort((a, b) => (a.date < b.date ? 1 : -1));
   }
 
   const assetIcon = (type) => {
@@ -233,8 +193,7 @@ export function createSidebar(root, { getCenter, getZoom, onLinkedParcels, onPre
           <div class="meta">${icons.id} ${esc(m.id)}</div>
           <div class="meta">${icons.date} ${esc(new Date(m.date).toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" }))}</div>
           ${m.assets.map((a) => `
-            <div class="asset"><span>${assetIcon(a.type)} ${esc(a.type)}${a.lots.length ? ` <span class="lot">lot ${a.lots.map(esc).join(", ")}</span>` : ""}</span>${a.surface ? `<span class="surface">${num(a.surface)} m²</span>` : ""}</div>`).join("")}
-          ${sameLotNote(m)}
+            <div class="asset"><span>${assetIcon(a.type)} ${esc(a.type)}</span>${a.surface ? `<span class="surface">${num(a.surface)} m²</span>` : ""}</div>`).join("")}
           ${m.linked.length ? `<p class="linked">Cette vente s'est effectuée sur plusieurs parcelles.<br>Parcelles complémentaires : ${m.linked.map(esc).join(", ")}</p>` : ""}
           ${m.assets.some((a) => /^(Maison|Appartement|Local)/.test(a.type))
             ? `<button type="button" class="predict-btn" data-mutation="${esc(m.id)}">Estimer ce bien aujourd'hui →</button>` : ""}
