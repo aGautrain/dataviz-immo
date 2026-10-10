@@ -1,0 +1,30 @@
+{
+  "name": "dataviz-immo",
+  "version": "1.0.0",
+  "description": "Réplique de l'explorateur DVF de data.gouv.fr (carte des prix de l'immobilier)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aGautrain/dataviz-immo.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aGautrain/dataviz-immo/issues"
+  },
+  "homepage": "https://github.com/aGautrain/dataviz-immo#readme",
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "d3-scale": "^4.0.2",
+    "maplibre-gl": "^6.13.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1",
+    "vite": "^8.3.4"
+  },
+  "private": true,
+  "type": "module"
+}

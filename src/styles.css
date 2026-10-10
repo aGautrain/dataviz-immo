@@ -1,0 +1,222 @@
+:root {
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --text: #161616;
+  --muted: #666;
+  --border: #e5e5e5;
+  --bg: #fff;
+  --bg-alt: #f6f6f6;
+  --accent: #000091;
+  --accent-light: #e3e3fd;
+  --header-h: 104px;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  line-height: 1.45;
+}
+a { color: var(--accent); }
+[hidden] { display: none !important; }
+.muted { color: var(--muted); font-weight: normal; }
+
+/* ------------------------------------------------------------ en-tête */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  padding: 14px 24px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.app-header h1 { margin: 0; font-size: 22px; line-height: 1.25; }
+.app-header p { margin: 4px 0 0; color: #3a3a3a; }
+.app-header .disclaimer { max-width: 380px; font-size: 12px; color: var(--muted); text-align: right; }
+
+.tabs { display: flex; gap: 4px; padding: 0 24px; border-bottom: 1px solid var(--border); }
+.tabs button {
+  font: inherit; font-weight: 600; background: none; border: 0; padding: 10px 12px; cursor: pointer;
+  color: var(--muted); border-bottom: 3px solid transparent;
+}
+.tabs button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+
+main { flex: 1; min-height: 0; display: flex; }
+main > section { flex: 1; min-height: 0; }
+
+/* ------------------------------------------------------------ vue carte */
+.map-view { display: flex; height: 100%; }
+#sidebar {
+  position: relative;
+  width: 30%;
+  min-width: 340px;
+  max-width: 460px;
+  overflow-y: auto;
+  padding: 20px 24px 32px;
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+}
+.sidebar-toggle { display: none; }
+
+.intro h2 { font-size: 28px; line-height: 1.2; margin: 0 0 10px; }
+.intro p { color: #3a3a3a; margin: 0 0 16px; }
+
+.ariane { display: flex; flex-wrap: wrap; gap: 4px; font-size: 12px; color: var(--muted); }
+.ariane span:not(:last-child)::after { content: "›"; margin-left: 4px; }
+.location { margin: 10px 0 16px; }
+.location-kind { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.location-label { display: block; font-size: 22px; font-weight: 700; line-height: 1.25; }
+
+.notice { background: var(--bg-alt); border-left: 4px solid var(--accent); padding: 10px 12px; margin: 12px 0; }
+
+.stats.loading { opacity: 0.5; transition: opacity 0.2s; }
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.kpi { background: var(--bg-alt); padding: 12px; }
+.kpi-title { display: block; font-size: 12px; color: #3a3a3a; cursor: help; }
+.kpi-value { display: block; font-size: 22px; font-weight: 700; margin-top: 4px; }
+
+.by-type { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+.by-type th, .by-type td { padding: 6px 4px; text-align: right; border-bottom: 1px solid var(--border); }
+.by-type tbody th { text-align: left; font-weight: 400; color: #3a3a3a; }
+.by-type thead th { font-weight: 700; }
+/* Colonnes affichées selon le filtre, comme l'original. */
+[data-filter="maison"] .col-a, [data-filter="local"] .col-a,
+[data-filter="appartement"] .col-m, [data-filter="local"] .col-m,
+[data-filter="tous"] .col-l, [data-filter="maison"] .col-l, [data-filter="appartement"] .col-l { display: none; }
+
+.chart-block { margin-bottom: 22px; }
+.chart-block h3 { font-size: 15px; margin: 0 0 2px; }
+.chart-geo { font-weight: 400; color: var(--muted); }
+.chart-help { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+.chart { position: relative; height: 180px; }
+.chart-empty { display: none; color: var(--muted); }
+.chart-block.empty .chart { display: none; }
+.chart-block.empty .chart-empty { display: block; }
+
+.mutations h3 { font-size: 16px; margin: 4px 0 12px; }
+.mutation { border: 1px solid var(--border); padding: 12px; margin-bottom: 12px; }
+.mutation .nature { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.mutation .price { font-size: 20px; font-weight: 700; margin: 2px 0 8px; }
+.mutation .meta, .mutation .asset { display: flex; align-items: center; gap: 6px; font-size: 13px; margin: 3px 0; }
+.mutation .asset { justify-content: space-between; border-top: 1px dashed var(--border); padding-top: 4px; }
+.mutation .asset span { display: inline-flex; align-items: center; gap: 6px; }
+.mutation .surface { font-weight: 700; }
+.mutation svg { flex: none; }
+.mutation .linked { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+
+.collapsible { border-top: 1px solid var(--border); }
+.collapsible > button {
+  width: 100%; text-align: left; font: inherit; font-weight: 700; background: none; border: 0;
+  padding: 12px 0; cursor: pointer; display: flex; justify-content: space-between;
+}
+.collapsible > button::after { content: "▾"; transition: transform 0.2s; }
+.collapsible.open > button::after { transform: rotate(180deg); }
+.collapsible-body { display: none; padding-bottom: 12px; }
+.collapsible.open .collapsible-body { display: block; }
+.links a { display: flex; gap: 8px; align-items: baseline; padding: 4px 0; text-decoration: none; }
+.links a:hover { text-decoration: underline; }
+.dpe-item { padding: 8px 0; border-bottom: 1px dashed var(--border); display: grid; gap: 4px; }
+.dpe-tag { display: inline-block; width: 22px; text-align: center; font-weight: 700; color: #fff; margin-right: 6px; }
+.dpe-a { background: #009c6d; } .dpe-b { background: #52b153; } .dpe-c { background: #a5cc74; color: #161616; }
+.dpe-d { background: #f4e70f; color: #161616; } .dpe-e { background: #f0b40f; color: #161616; }
+.dpe-f { background: #eb8235; } .dpe-g { background: #d7221f; }
+
+/* ------------------------------------------------------------ carte */
+.map-wrap { position: relative; flex: 1; min-width: 0; }
+#map { position: absolute; inset: 0; }
+
+.map-controls {
+  position: absolute; top: 12px; left: 12px; z-index: 2;
+  width: min(460px, calc(100% - 70px));
+  display: grid; gap: 8px;
+}
+.search { position: relative; display: flex; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.search input {
+  flex: 1; min-width: 0; font: inherit; padding: 10px 12px; border: 0; border-bottom: 2px solid var(--accent);
+  background: #fff; border-radius: 4px 0 0 0;
+}
+.search button {
+  font: inherit; font-weight: 600; border: 0; background: var(--accent); color: #fff; padding: 0 14px; cursor: pointer;
+  border-radius: 0 4px 0 0;
+}
+.results {
+  position: absolute; top: 100%; left: 0; right: 0; margin: 0; padding: 0; list-style: none;
+  background: #fff; box-shadow: 0 6px 12px rgba(0,0,0,0.15); max-height: 260px; overflow-y: auto;
+}
+.results li { padding: 8px 12px; cursor: pointer; }
+.results li.active, .results li:hover { background: var(--accent-light); }
+
+.filters { background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 4px; }
+.filters .toggle {
+  width: 100%; text-align: left; font: inherit; background: none; border: 0; padding: 10px 12px; cursor: pointer;
+  display: flex; gap: 6px;
+}
+.filters .toggle::after { content: "▾"; margin-left: auto; }
+.filters.open .toggle::after { content: "▴"; }
+.filters fieldset { display: none; border: 0; margin: 0; padding: 0 12px 10px; }
+.filters.open fieldset { display: grid; gap: 6px; }
+.filters label { cursor: pointer; display: flex; gap: 8px; align-items: center; }
+
+.map-tooltip {
+  position: absolute; top: 0; left: 0; z-index: 3; pointer-events: none;
+  min-width: 165px; max-width: 260px; padding: 6px 12px;
+  background: #fff; border-radius: 4px; font-size: 12px; line-height: 1.6;
+  box-shadow: 0 8px 16px rgba(22,22,22,0.12), 0 8px 16px -16px rgba(22,22,22,0.32);
+}
+
+.legend {
+  position: absolute; left: 16px; bottom: 24px; z-index: 2;
+  background: #fff; padding: 8px 14px 6px; width: min(388px, calc(100% - 100px));
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 4px;
+}
+.legend-title { font-weight: 600; font-size: 13px; }
+.legend-bar {
+  height: 8px; margin: 6px 0 4px;
+  background: linear-gradient(90deg, #028758 0%, #8fbe53 25%, #fff64e 50%, #e67b2c 75%, #cc000a 100%);
+}
+.legend-labels { display: flex; justify-content: space-between; font-size: 11px; }
+
+.style-toggle {
+  position: absolute; right: 12px; bottom: 32px; z-index: 2; padding: 0; border: 2px solid #fff;
+  width: 54px; height: 54px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.25); background: #fff;
+}
+.style-toggle img { display: block; width: 50px; height: 50px; }
+
+/* ------------------------------------------------------------ sources */
+.sources { overflow-y: auto; padding: 24px; max-width: 860px; }
+.sources h2 { margin-top: 8px; }
+.sources h3 { font-size: 15px; margin-bottom: 4px; }
+.sources li { margin-bottom: 8px; }
+
+/* ------------------------------------------------------------ responsive */
+@media (max-width: 1100px) {
+  .app-header .disclaimer { display: none; }
+}
+@media (max-width: 767px) {
+  :root { font-size: 13px; }
+  .app-header { padding: 10px 16px 8px; }
+  .app-header h1 { font-size: 17px; }
+  .app-header p { display: none; }
+  .tabs { padding: 0 16px; }
+  .map-view { flex-direction: column-reverse; }
+  .map-wrap { flex: 1; min-height: 55%; }
+  #sidebar {
+    width: 100%; max-width: none; min-width: 0; max-height: 45%;
+    border-right: 0; border-top: 1px solid var(--border); padding: 28px 16px 24px;
+    transition: max-height 0.2s;
+  }
+  #sidebar.collapsed { max-height: 44px; overflow: hidden; }
+  .sidebar-toggle {
+    display: block; position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
+    width: 48px; height: 6px; border-radius: 3px; border: 0; background: #ccc; cursor: pointer;
+  }
+  .intro h2 { font-size: 20px; }
+  .map-controls { left: 8px; top: 8px; width: calc(100% - 56px); }
+  .legend { left: 8px; bottom: 8px; width: calc(100% - 90px); }
+  .style-toggle { right: 8px; bottom: 8px; }
+}

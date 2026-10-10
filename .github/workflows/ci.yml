@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build
+        run: npm run build
+        env:
+          BASE_PATH: /dataviz-immo/
+      - name: En-têtes CORS de l'API DVF
+        run: curl -sS -D - -o /dev/null -H "Origin: https://agautrain.github.io" https://dvf-api.data.gouv.fr/nation
+      - run: npx playwright install --with-deps chromium
+      - name: Test de fumée sur les données réelles
+        run: |
+          npx vite preview --port 4173 --strictPort &
+          for i in $(seq 30); do curl -sf http://localhost:4173/dataviz-immo/ >/dev/null && break; sleep 1; done
+          node tests/smoke.mjs http://localhost:4173/dataviz-immo/
+        env:
+          BASE_PATH: /dataviz-immo/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-screenshot
+          path: smoke.png

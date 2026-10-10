@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Explorateur DVF – prix de l'immobilier</title>
+    <meta name="description" content="Suivez l'évolution des prix de l'immobilier et trouvez le prix des ventes immobilières des 5 dernières années, à partir des données DVF publiées sur data.gouv.fr." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 3 2 12h3v8h5v-6h4v6h5v-8h3z' fill='%23000091'/></svg>" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <h1>Explorateur de données de valeurs foncières</h1>
+        <p>Suivez l'évolution des prix de l'immobilier et trouvez le prix des ventes immobilières des 5 dernières années.</p>
+      </div>
+      <p class="disclaimer">Réplique open source et non officielle de l'<a href="https://explore.data.gouv.fr/fr/immobilier?onglet=carte&filtre=tous" target="_blank" rel="noopener">explorateur DVF de data.gouv.fr</a>, alimentée par ses données publiques.</p>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="carte" aria-selected="true">Carte</button>
+      <button role="tab" data-tab="sources" aria-selected="false">Sources et questions fréquentes</button>
+    </nav>
+
+    <main>
+      <section class="map-view" data-panel="carte">
+        <aside id="sidebar" data-filter="tous">
+          <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Replier ou déplier le panneau"></button>
+
+          <div id="intro" class="intro">
+            <h2>Bonjour !<br />Bienvenue</h2>
+            <p>Suivez l'évolution des prix de l'immobilier et trouvez le prix des ventes immobilières sur les 5 dernières années. Zoomez ou cliquez sur la carte pour descendre jusqu'à la parcelle.</p>
+          </div>
+
+          <div id="breadcrumb" class="breadcrumb" hidden>
+            <div id="ariane" class="ariane"></div>
+            <div class="location">
+              <span id="location-kind" class="location-kind"></span>
+              <span id="location-label" class="location-label"></span>
+            </div>
+          </div>
+
+          <p id="nodata" class="notice" hidden>Les données DVF ne couvrent pas l'Alsace et la Moselle (régime du livre foncier).</p>
+
+          <div id="stats" class="stats">
+            <div class="kpis">
+              <div class="kpi">
+                <span class="kpi-title" title="Nombre total de ventes immobilières pendant les 5 dernières années">Nombre total de ventes</span>
+                <span id="total-sales" class="kpi-value">–</span>
+              </div>
+              <div class="kpi">
+                <span class="kpi-title" title="Prix médian du m² de l'ensemble des ventes immobilières des 5 dernières années">Prix de vente médian au m²</span>
+                <span id="median-price" class="kpi-value">–</span>
+              </div>
+            </div>
+
+            <table class="by-type">
+              <thead>
+                <tr><th></th><th class="col-a">Appt.</th><th class="col-m">Maisons</th><th class="col-l">Locaux</th></tr>
+              </thead>
+              <tbody>
+                <tr><th>Ventes</th><td class="col-a" id="sales-a">–</td><td class="col-m" id="sales-m">–</td><td class="col-l" id="sales-l">–</td></tr>
+                <tr><th>Prix médian m²</th><td class="col-a" id="price-a">–</td><td class="col-m" id="price-m">–</td><td class="col-l" id="price-l">–</td></tr>
+              </tbody>
+            </table>
+
+            <div id="line-block" class="chart-block">
+              <h3>Évolution du prix de vente médian au m² <span class="chart-geo"></span></h3>
+              <p class="chart-help">Prix au m² obtenu en divisant la valeur foncière du bien par sa surface bâtie, par mois de vente.</p>
+              <div class="chart"><canvas id="line-chart"></canvas></div>
+              <p class="chart-empty">Pas assez de ventes pour tracer l'évolution.</p>
+            </div>
+
+            <div id="bar-block" class="chart-block">
+              <h3>Distribution du prix de vente au m² <span class="chart-geo"></span></h3>
+              <p class="chart-help">Répartition des ventes par tranche de prix au m². Survolez une barre pour voir le nombre de ventes.</p>
+              <div class="chart"><canvas id="bar-chart"></canvas></div>
+              <p class="chart-empty">Pas de distribution disponible.</p>
+            </div>
+          </div>
+
+          <p id="section-cta" class="notice" hidden>Sélectionnez une parcelle. Seules les parcelles ayant fait l'objet d'au moins une mutation ces 5 dernières années (en bleu) sont cliquables.</p>
+
+          <div id="mutations" class="mutations" hidden>
+            <h3>Liste des mutations immobilières <span id="mutations-total" class="muted"></span></h3>
+            <div id="mutations-list"></div>
+          </div>
+
+          <div id="dpe" class="collapsible" hidden>
+            <button type="button">Diagnostics de performance énergétique (DPE)</button>
+            <div id="dpe-body" class="collapsible-body"></div>
+          </div>
+          <div id="copro" class="collapsible" hidden>
+            <button type="button">Informations sur la copropriété</button>
+            <div id="copro-body" class="collapsible-body"></div>
+          </div>
+          <div id="links" class="collapsible" hidden>
+            <button type="button">Liens utiles</button>
+            <div id="links-list" class="collapsible-body links"></div>
+          </div>
+        </aside>
+
+        <div class="map-wrap">
+          <div id="map"></div>
+
+          <div class="map-controls">
+            <form id="search" class="search" role="search" autocomplete="off">
+              <input type="search" placeholder="Rechercher une adresse ou une parcelle (ex : 75101000AB0001)" aria-label="Rechercher une adresse ou une parcelle" />
+              <button type="submit">Rechercher</button>
+              <ul class="results" role="listbox" hidden></ul>
+            </form>
+
+            <div id="filters" class="filters">
+              <button type="button" class="toggle">Type de biens : <b id="filter-label">Appartements et maisons</b></button>
+              <fieldset>
+                <label><input type="radio" name="filtre" value="tous" /> Appartements et maisons</label>
+                <label><input type="radio" name="filtre" value="maison" /> Maisons</label>
+                <label><input type="radio" name="filtre" value="appartement" /> Appartements</label>
+                <label><input type="radio" name="filtre" value="local" /> Locaux industriels et commerciaux</label>
+              </fieldset>
+            </div>
+          </div>
+
+          <div id="map-tooltip" class="map-tooltip" hidden></div>
+
+          <div id="legend" class="legend" hidden>
+            <span class="legend-title">Prix au m²</span>
+            <div class="legend-bar"></div>
+            <div class="legend-labels"><span id="leg-min"></span><span id="leg-pivot"></span><span id="leg-max"></span></div>
+          </div>
+
+          <button id="style-toggle" class="style-toggle" title="Afficher la photographie aérienne"><img alt="" width="50" height="50" /></button>
+        </div>
+      </section>
+
+      <section class="sources" data-panel="sources" hidden>
+        <h2>Sources des données</h2>
+        <p>Cette application reproduit l'onglet « Carte » de l'<a href="https://explore.data.gouv.fr/fr/immobilier?onglet=carte&filtre=tous" target="_blank" rel="noopener">explorateur DVF</a> publié par data.gouv.fr (<a href="https://www.data.gouv.fr/reuses/explorateur-de-donnees-de-valeur-fonciere-dvf" target="_blank" rel="noopener">fiche de réutilisation</a>). Elle ne dispose d'aucun serveur : toutes les données sont lues directement depuis les services publics ci-dessous.</p>
+        <ul>
+          <li><b>Demandes de valeurs foncières (DVF)</b>, DGFiP, publiées sur <a href="https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres/" target="_blank" rel="noopener">data.gouv.fr</a> sous Licence Ouverte. Les statistiques (médianes, séries mensuelles, distributions) sont calculées par le <a href="https://github.com/datagouv/datagouvfr_data_pipelines/tree/main/data_processing/dvf" target="_blank" rel="noopener">pipeline de data.gouv.fr</a> et servies par l'<a href="https://github.com/datagouv/api-dvf" target="_blank" rel="noopener">API DVF</a>.</li>
+          <li><b>Découpage administratif et cadastre</b> : tuiles vectorielles de <a href="https://openmaptiles.geo.data.gouv.fr" target="_blank" rel="noopener">openmaptiles.geo.data.gouv.fr</a> (Etalab, cadastre DGFiP).</li>
+          <li><b>Fond de carte</b> : OpenMapTiles / OpenStreetMap ; photographies aériennes et géocodage : <a href="https://geoservices.ign.fr" target="_blank" rel="noopener">Géoplateforme de l'IGN</a>.</li>
+          <li><b>DPE et copropriétés</b> : Base de données nationale des bâtiments (BDNB) et Registre national d'immatriculation des copropriétés.</li>
+        </ul>
+
+        <h2>Questions fréquentes</h2>
+        <h3>Comment est calculé le prix au m² ?</h3>
+        <p>Pour chaque vente d'un seul bien (appartement, maison ou local), la valeur foncière est divisée par la surface réelle bâtie. Le prix affiché est la médiane de ces prix au m² sur la période et le territoire choisis. Seules les ventes (y compris en l'état futur d'achèvement et les adjudications) portant sur un seul bien sont retenues ; les dépendances et terrains ne sont pas comptés comme des biens.</p>
+        <h3>Pourquoi l'Alsace et la Moselle n'apparaissent pas ?</h3>
+        <p>Les départements du Bas-Rhin, du Haut-Rhin et de la Moselle relèvent du livre foncier et ne sont pas couverts par DVF.</p>
+        <h3>Pourquoi certains territoires sont grisés ?</h3>
+        <p>Le prix médian n'est pas publié lorsqu'il y a trop peu de ventes sur la période pour être significatif.</p>
+        <h3>Quelle période est couverte ?</h3>
+        <p>Les 5 dernières années disponibles, mises à jour chaque semestre par la DGFiP.</p>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
