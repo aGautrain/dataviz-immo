@@ -35,4 +35,4 @@ jobs:
         if: always()
         with:
           name: smoke-screenshot
-          path: smoke.png
+          path: smoke*.png

@@ -10,7 +10,7 @@ const num = (v) => (v == null ? "–" : Math.round(v).toLocaleString("fr-FR"));
 const euros = (v) => (v == null ? "indisponible" : `${num(v)} €`);
 const stripZeros = (s) => (s || "").replace(/^0+/, "");
 
-export function createSidebar(root, { getCenter, getZoom, onLinkedParcels }) {
+export function createSidebar(root, { getCenter, getZoom, onLinkedParcels, onPredict }) {
   const $ = (sel) => root.querySelector(sel);
   const lineChart = createLineChart($("#line-chart"));
   const barChart = createBarChart($("#bar-chart"));
@@ -195,6 +195,8 @@ export function createSidebar(root, { getCenter, getZoom, onLinkedParcels }) {
           ${m.assets.map((a) => `
             <div class="asset"><span>${assetIcon(a.type)} ${esc(a.type)}</span>${a.surface ? `<span class="surface">${num(a.surface)} m²</span>` : ""}</div>`).join("")}
           ${m.linked.length ? `<p class="linked">Cette vente s'est effectuée sur plusieurs parcelles.<br>Parcelles complémentaires : ${m.linked.map(esc).join(", ")}</p>` : ""}
+          ${m.assets.some((a) => /^(Maison|Appartement|Local)/.test(a.type))
+            ? `<button type="button" class="predict-btn" data-mutation="${esc(m.id)}">Estimer ce bien aujourd'hui →</button>` : ""}
         </article>`).join("")
       : `<p class="muted">Aucune transaction enregistrée sur cette parcelle depuis 5 ans.</p>`;
 
@@ -260,6 +262,12 @@ export function createSidebar(root, { getCenter, getZoom, onLinkedParcels }) {
     renderLinks(loc);
     renderParcel(loc, t);
   }
+
+  // Raccourci vers l'onglet Prédiction avec la vente sélectionnée.
+  $("#mutations-list").addEventListener("click", (e) => {
+    const btn = e.target.closest(".predict-btn");
+    if (btn && state.location.parcelle) onPredict(state.location.parcelle, btn.dataset.mutation);
+  });
 
   root.querySelectorAll(".collapsible > button").forEach((btn) =>
     btn.addEventListener("click", () => btn.parentElement.classList.toggle("open")),

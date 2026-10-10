@@ -82,6 +82,19 @@ if (point) {
   await page.waitForFunction(() => !document.querySelector("#mutations").hidden && !/Chargement/.test(document.querySelector("#mutations-list").textContent), null, { timeout: 30000 }).catch(() => {});
   check("Parcelle : libellé", /\d{5}\w{5}\d{4}/.test((await text("#location-label")) ?? ""), await text("#location-label"));
   check("Parcelle : mutations", ((await text("#mutations-list")) ?? "").length > 0, (await text("#mutations-list"))?.replace(/\s+/g, " ").slice(0, 200));
+
+  // 5 bis. Raccourci vers l'onglet Prédiction depuis une vente de la parcelle.
+  const btn = await page.$(".predict-btn");
+  check("Parcelle : bouton Estimer", !!btn);
+  if (btn) {
+    await btn.click();
+    await page.waitForFunction(() => !document.querySelector("#pred-results").hidden, null, { timeout: 60000 }).catch(() => {});
+    check("Prédiction : onglet ouvert", await visible("[data-panel=prediction]"), await page.evaluate(() => location.search));
+    const kpis = (await text(".pred-kpis"))?.replace(/\s+/g, " ");
+    check("Prédiction : estimation", /Prix estimé.*\d €/.test(kpis ?? ""), kpis?.slice(0, 250));
+    check("Prédiction : comparables", ((await text(".pred-summary")) ?? "").includes("ventes comparables"), (await text(".pred-summary"))?.replace(/\s+/g, " ").slice(0, 250));
+    await page.screenshot({ path: "smoke-prediction.png" });
+  }
 }
 
 // 6. Recherche d'adresse.

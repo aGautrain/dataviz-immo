@@ -2,6 +2,7 @@ import "./styles.css";
 import { createMap } from "./map.js";
 import { createSidebar } from "./sidebar.js";
 import { createSearch } from "./search.js";
+import { createPrediction } from "./prediction.js";
 import { FILTERS, state, setState, subscribe } from "./state.js";
 import previewOrtho from "./img/preview-ortho.png";
 import previewVector from "./img/preview-vector.png";
@@ -66,6 +67,18 @@ createSidebar($("#sidebar"), {
   getCenter: () => mapApi.map.getCenter().toArray().map((v) => +v.toFixed(5)),
   getZoom: () => mapApi.map.getZoom(),
   onLinkedParcels: (ids) => state.location.parcelle && mapApi.highlightParcels(state.location.parcelle, ids),
+  onPredict: (parcelle, mutation) => {
+    prediction.open(parcelle, mutation);
+    showTab("prediction");
+  },
+});
+
+const prediction = createPrediction($("[data-panel=prediction]"), {
+  onShowOnMap: (parcelle, coords) => {
+    showTab("carte");
+    if (coords) mapApi.flyToParcel(parcelle, coords);
+  },
+  onChange: () => syncUrl(),
 });
 
 createSearch($("#search"), {
@@ -108,6 +121,11 @@ function syncUrl() {
   q.set("lng", c.lng.toFixed(5));
   q.set("zoom", mapApi.map.getZoom().toFixed(2));
   if (state.location.parcelle) q.set("parcelle", state.location.parcelle);
+  const ref = prediction?.current;
+  if (q.get("onglet") === "prediction" && ref) {
+    q.set("ref", ref.parcelle);
+    if (ref.mutation) q.set("mutation", ref.mutation);
+  }
   history.replaceState(null, "", `${location.pathname}?${q}`);
 }
 mapApi.map.on("moveend", syncUrl);
@@ -118,3 +136,7 @@ subscribe(() => {
 renderFilterLabel();
 
 if (params.get("onglet") === "sources") showTab("sources");
+if (params.get("onglet") === "prediction") {
+  if (params.get("ref")) prediction.open(params.get("ref"), params.get("mutation"));
+  showTab("prediction");
+}

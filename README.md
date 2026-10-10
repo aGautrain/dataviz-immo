@@ -12,6 +12,7 @@ Réplique open source de l'onglet **Carte** de l'[explorateur des données de va
 - Recherche d'adresse ou d'identifiant de parcelle (Géoplateforme IGN).
 - Panneau latéral : nombre de ventes, prix médian, détail par type de bien, évolution mensuelle, distribution des prix, liens utiles.
 - Au clic sur une parcelle : liste des mutations (prix, date, adresse, biens et surfaces), parcelles vendues ensemble, DPE et copropriété quand ils existent.
+- Onglet **Prédiction** : à partir d'une vente passée (bouton « Estimer ce bien aujourd'hui » sur la carte) ou d'une adresse, estimation du prix actuel par la méthode des ventes comparables du voisinage, prix actualisés avec l'évolution du prix médian au m² de la commune (méthode détaillée dans l'onglet).
 - L'URL garde le filtre et la position de la carte (`?filtre=maison&lat=…&lng=…&zoom=…`), on peut donc partager une vue.
 
 ## Architecture
@@ -31,6 +32,8 @@ src/
   sidebar.js   panneau latéral : statistiques, graphiques, mutations
   charts.js    courbe d'évolution et histogramme
   search.js    recherche d'adresse / parcelle
+  estimation.js  moteur d'estimation (ventes comparables, indice de prix)
+  prediction.js  onglet Prédiction
   state.js     état partagé (filtre, territoire courant)
   data/        style de carte et centres des départements (repris de l'original)
 tests/smoke.mjs  test de bout en bout sur les données réelles

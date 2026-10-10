@@ -3,6 +3,8 @@
 
 export const DVF_API = import.meta.env.VITE_DVF_API || "https://dvf-api.data.gouv.fr";
 const GEOCODER = "https://data.geopf.fr/geocodage/search";
+const REVERSE = "https://data.geopf.fr/geocodage/reverse";
+const CADASTRE = "https://cadastre.data.gouv.fr/bundler/cadastre-etalab/communes";
 
 const cache = new Map();
 
@@ -44,6 +46,8 @@ export const api = {
   // Mutations d'une section cadastrale : /mutations/{commune}/{prefixe+section}.
   mutations: (parcelle) =>
     dvf(`/mutations/${parcelle.substring(0, 5)}/${parcelle.substring(5, 10)}`),
+  // Même chose à partir d'un identifiant de section (10 caractères).
+  sectionMutations: (section) => dvf(`/mutations/${section.substring(0, 5)}/${section.substring(5, 10)}`),
 
   // DPE (BDNB) et copropriétés d'une parcelle.
   dpeCopro: (parcelle) => dvf(`/dpe-copro/${parcelle}`),
@@ -52,4 +56,8 @@ export const api = {
   searchAddress: (q) =>
     getJson(`${GEOCODER}?q=${encodeURIComponent(q)}&limit=6&autocomplete=1`),
   searchParcel: (id) => getJson(`${GEOCODER}?index=parcel&q=${encodeURIComponent(id)}`),
+  reverseParcel: ([lon, lat]) => getJson(`${REVERSE}?index=parcel&lon=${lon}&lat=${lat}&limit=1`),
+
+  // Contours des sections cadastrales d'une commune (pour trouver les sections voisines).
+  sectionsGeometry: (com) => getJson(`${CADASTRE}/${com}/geojson/sections`),
 };

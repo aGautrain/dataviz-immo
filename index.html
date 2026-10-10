@@ -18,6 +18,7 @@
 
     <nav class="tabs" role="tablist">
       <button role="tab" data-tab="carte" aria-selected="true">Carte</button>
+      <button role="tab" data-tab="prediction" aria-selected="false">Prédiction</button>
       <button role="tab" data-tab="sources" aria-selected="false">Sources et questions fréquentes</button>
     </nav>
 
@@ -129,6 +130,52 @@
           </div>
 
           <button id="style-toggle" class="style-toggle" title="Afficher la photographie aérienne"><img alt="" width="50" height="50" /></button>
+        </div>
+      </section>
+
+      <section class="prediction" data-panel="prediction" hidden>
+        <div class="pred-layout">
+          <div class="pred-main">
+            <h2>Estimer le prix d'un bien aujourd'hui</h2>
+            <p class="pred-intro">Partez d'une vente passée (ou décrivez un bien), l'application cherche les ventes comparables du voisinage et ramène leurs prix à aujourd'hui pour estimer une valeur de marché. Depuis l'onglet Carte, le bouton « Estimer ce bien aujourd'hui » d'une vente l'ouvre directement ici.</p>
+
+            <form id="pred-search" class="search pred-search" role="search" autocomplete="off">
+              <input type="search" placeholder="Adresse ou identifiant de parcelle (ex : 33063000KE0061)" aria-label="Adresse ou identifiant de parcelle" />
+              <button type="submit">Chercher</button>
+              <ul class="results" role="listbox" hidden></ul>
+            </form>
+
+            <div id="pred-parcel" class="pred-parcel"></div>
+
+            <form id="pred-form" class="pred-form" hidden>
+              <label>Type de bien
+                <select id="pred-type">
+                  <option value="Appartement">Appartement</option>
+                  <option value="Maison">Maison</option>
+                  <option value="Local industriel. commercial ou assimilé">Local commercial ou industriel</option>
+                </select>
+              </label>
+              <label>Surface (m²) <input id="pred-surface" type="number" min="9" step="1" required /></label>
+              <label>Pièces <input id="pred-rooms" type="number" min="0" step="1" /></label>
+              <button type="submit">Estimer</button>
+            </form>
+
+            <p id="pred-status" class="muted" hidden></p>
+            <div id="pred-results" class="pred-results" hidden></div>
+          </div>
+
+          <aside class="pred-method">
+            <h3>Méthode</h3>
+            <ol>
+              <li><b>Voisinage.</b> Les ventes DVF de la section cadastrale du bien et des sections voisines de la même commune (rayon de 500 m, élargi à 1,2 puis 2,5 km s'il y a moins de 12 comparables).</li>
+              <li><b>Ventes comparables.</b> Ventes d'un seul bien du même type (appartement, maison ou local, avec éventuellement une cave ou un garage), de surface proche : ±25 %, élargie si besoin. La vente de référence elle-même est exclue.</li>
+              <li><b>Actualisation.</b> Chaque prix au m² est multiplié par l'évolution du prix médian au m² du même type de bien entre le mois de la vente et le dernier mois connu, dans la commune (ou le département si la commune a trop peu de ventes). Série lissée sur 7 mois.</li>
+              <li><b>Valeurs aberrantes.</b> Les prix au m² actualisés hors de l'intervalle de Tukey (1,5 × écart interquartile) sont écartés.</li>
+              <li><b>Pondération.</b> Chaque vente compte d'autant plus qu'elle est proche (décroissance sur ~600 m), récente (~4 ans), de surface et de nombre de pièces semblables.</li>
+              <li><b>Estimation.</b> Médiane pondérée des prix au m² actualisés, multipliée par la surface. La fourchette correspond aux 1<sup>er</sup> et 3<sup>e</sup> quartiles pondérés.</li>
+            </ol>
+            <p class="muted">« Aujourd'hui » désigne le dernier mois publié dans DVF (mise à jour semestrielle, avec quelques mois de décalage). L'estimation ne connaît ni l'état du bien, ni l'étage, ni les travaux : c'est un ordre de grandeur, pas une expertise.</p>
+          </aside>
         </div>
       </section>
 
